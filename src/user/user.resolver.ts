@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
+import { ObjectId } from 'mongoose';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -14,8 +15,8 @@ export class UserResolver {
   }
 
   @Query(() => User, { name: 'user', description: 'return single user data' })
-  findOne(@Args('_id', { type: () => Int }) id: number) {
-    return this.userService.findOne(id);
+  find(@Args('_id', { type: () => String }) id: ObjectId) {
+    return this.userService.find(id);
   }
 
   @Mutation(() => User, { name: 'createUser', description: 'add new user into database' })
@@ -24,12 +25,12 @@ export class UserResolver {
   }
 
   @Mutation(() => User, { name: 'updateUser', description: 'updates exiting user' })
-  updateUser(@Args('_id', { type: () => Int }) id: number, @Args('updateUserInput') updateUserInput: UpdateUserInput) {
+  updateUser(@Args('_id', { type: () => String }) id: ObjectId, @Args('updateUserInput') updateUserInput: UpdateUserInput) {
     return this.userService.update(id, updateUserInput);
   }
 
   @Mutation(() => User, { name: "deleteUser", description: 'deletes exiting user' })
-  removeUser(@Args('_id', { type: () => Int }) id: number) {
+  removeUser(@Args('_id', { type: () => String }) id: ObjectId) {
     return this.userService.remove(id);
   }
 }

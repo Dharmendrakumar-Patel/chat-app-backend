@@ -1,31 +1,60 @@
+import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
+import { USER_MODAL, UserDocument } from './entities/user.schema';
+import { Model, ObjectId } from 'mongoose';
 
 @Injectable()
 export class UserService {
+  constructor(@InjectModel(USER_MODAL) private userModel: Model<UserDocument>) {}
+
   user = new Map()
 
-  create(createUserInput: CreateUserInput) {
-    const id = this.user.size
-    this.user.set(id, { _id: id, ...createUserInput })
-    return this.user.get(id)
+  async findAll() {
+    return await this.userModel.find() 
   }
 
-  findAll() {
-    return Array.from(this.user.values());  
+  async find(id: ObjectId){
+    return await this.userModel.findById(id)
   }
 
-  findOne(id: number) {
-    return this.user.get(id)
+  async create(createUserInput: CreateUserInput) {
+    const {firstname, lastname, email, password} = createUserInput
+    const saltOrRounds = await bcrypt.genSalt(10)
+    const encryptedPassword = await bcrypt.hash(password, saltOrRounds)
+
+    console.log(password, encryptedPassword)
+
+    const user = await this.userModel.create({
+        firstname,
+        lastname,
+        email,
+        password: encryptedPassword,
+    })
+
+    return user
   }
 
-  update(id: number, updateUserInput: UpdateUserInput) {
-    this.user.set(id, { ...this.user.get(id), ...updateUserInput })
-    return this.user.get(id)
+
+  async update(id: ObjectId, updateUserInput: UpdateUserInput) {
+    const exitingUser = await this.userModel.findById(id)
+
+    if(!exitingUser) throw Error("User Not Exits")
+
+    const user = await this.userModel.findByIdAndUpdate(id, updateUserInput, {new: true})
+
+    return user
   }
 
-  remove(id: number) {
-    return this.user.delete(id)
+  async remove(id: ObjectId) {
+    const exitingUser = await this.userModel.findById(id)
+
+    if(!exitingUser) throw Error("User Not Exits")
+
+    await this.userModel.findByIdAndDelete(id)
+
+    return { message: id }
   }
 }
