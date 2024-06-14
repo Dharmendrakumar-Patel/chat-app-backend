@@ -55,6 +55,6 @@ export class UserService {
 
     await this.userModel.findByIdAndDelete(id)
 
-    return { message: id }
+    return exitingUser
   }
 }
