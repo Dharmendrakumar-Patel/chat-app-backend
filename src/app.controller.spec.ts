@@ -15,8 +15,8 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return "Welcom To Chat App Backend"', () => {
+      expect(appController.getHello()).toBe('Welcom To Chat App Backend');
     });
   });
 });
