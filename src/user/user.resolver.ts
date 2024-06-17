@@ -3,7 +3,6 @@ import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { ObjectId } from 'mongoose';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -15,7 +14,7 @@ export class UserResolver {
   }
 
   @Query(() => User, { name: 'user', description: 'return single user data' })
-  find(@Args('_id', { type: () => String }) id: ObjectId) {
+  find(@Args('_id') id: string) {
     return this.userService.find(id);
   }
 
@@ -25,12 +24,12 @@ export class UserResolver {
   }
 
   @Mutation(() => User, { name: 'updateUser', description: 'updates exiting user' })
-  updateUser(@Args('_id', { type: () => String }) id: ObjectId, @Args('updateUserInput') updateUserInput: UpdateUserInput) {
+  updateUser(@Args('_id') id: string, @Args('updateUserInput') updateUserInput: UpdateUserInput) {
     return this.userService.update(id, updateUserInput);
   }
 
   @Mutation(() => User, { name: "deleteUser", description: 'deletes exiting user' })
-  removeUser(@Args('_id', { type: () => String }) id: ObjectId) {
+  removeUser(@Args('_id') id: string) {
     return this.userService.remove(id);
   }
 }

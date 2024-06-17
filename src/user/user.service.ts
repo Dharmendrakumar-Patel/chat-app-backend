@@ -1,23 +1,19 @@
 import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { UserRepository } from './user.repository';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { USER_MODAL, UserDocument } from './entities/user.schema';
-import { Model, ObjectId } from 'mongoose';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(USER_MODAL) private userModel: Model<UserDocument>) {}
-
-  user = new Map()
+  constructor(private readonly userRepository: UserRepository) {}
 
   async findAll() {
-    return await this.userModel.find() 
+    return await this.userRepository.find({})
   }
 
-  async find(id: ObjectId){
-    return await this.userModel.findById(id)
+  async find(_id: string){
+    return await this.userRepository.findOne({_id})
   }
 
   async create(createUserInput: CreateUserInput) {
@@ -25,36 +21,19 @@ export class UserService {
     const saltOrRounds = await bcrypt.genSalt(10)
     const encryptedPassword = await bcrypt.hash(password, saltOrRounds)
 
-    console.log(password, encryptedPassword)
-
-    const user = await this.userModel.create({
+    return await this.userRepository.create({
         firstname,
         lastname,
         email,
         password: encryptedPassword,
     })
-
-    return user
   }
 
-
-  async update(id: ObjectId, updateUserInput: UpdateUserInput) {
-    const exitingUser = await this.userModel.findById(id)
-
-    if(!exitingUser) throw Error("User Not Exits")
-
-    const user = await this.userModel.findByIdAndUpdate(id, updateUserInput, {new: true})
-
-    return user
+  async update(_id: string, updateUserInput: Partial<UpdateUserInput>) {
+    return await this.userRepository.findOneAndUpdate({_id}, updateUserInput)
   }
 
-  async remove(id: ObjectId) {
-    const exitingUser = await this.userModel.findById(id)
-
-    if(!exitingUser) throw Error("User Not Exits")
-
-    await this.userModel.findByIdAndDelete(id)
-
-    return exitingUser
+  async remove(_id: string) {
+    return await this.userRepository.findOneAndDelete({_id})
   }
 }
