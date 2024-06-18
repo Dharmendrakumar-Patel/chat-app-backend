@@ -1,6 +1,6 @@
 import { FilterQuery, Model, Types } from "mongoose";
 import { AbstractDocument } from "./abstract.entity";
-import { Logger, NotFoundException } from '@nestjs/common'
+import { Logger, NotFoundException, ConflictException } from '@nestjs/common'
 
 export abstract class AbstractRepository<TDocument extends AbstractDocument>{
     protected abstract readonly logger: Logger;
@@ -9,55 +9,82 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument>{
     ) {}
 
     async findOne (filterQuery: FilterQuery<TDocument> ) : Promise<TDocument> {
-        const document = await this.model.findOne(filterQuery, {}, {lean: true})
-
-        if(!document) {
-            this.logger.warn('Document not found with filterQuery: %o', filterQuery)
-            throw new NotFoundException('Document not found.')
+        try {
+            const document = await this.model.findOne(filterQuery, {}, {lean: true})
+    
+            if(!document) {
+                this.logger.warn('Document not found with filterQuery: %o', filterQuery)
+                throw new NotFoundException('Document not found.')
+            }
+    
+            return document as unknown as TDocument
+        } catch (error) {     
+            throw error;
         }
-
-        return document as unknown as TDocument
     }
 
     async find (filterQuery: FilterQuery<TDocument>) : Promise<TDocument[]> {
-        const documents = await this.model.find(filterQuery, {}, {lean: true})
+        try {
+            const documents = await this.model.find(filterQuery, {}, {lean: true})
 
-        if(!documents) {
-            this.logger.warn('Document not found with filterQuery: %o', filterQuery)
-            throw new NotFoundException('Document not found.')
+            if(!documents) {
+                this.logger.warn('Document not found with filterQuery: %o', filterQuery)
+                throw new NotFoundException('Document not found.')
+            }
+    
+            return documents as unknown as TDocument[]
+        } catch (error) {     
+            throw error;
         }
-
-        return documents as unknown as TDocument[]
     }
 
     async create (document: Omit<TDocument, '_id'>) : Promise<TDocument> {
-        const createDocument = new this.model({
-            ...document,
-            _id: new Types.ObjectId()
-        })
+        try {
+            const createDocument = new this.model({
+                ...document,
+                _id: new Types.ObjectId()
+            })
 
-        return (await createDocument.save()).toJSON() as unknown as TDocument
+            return (await createDocument.save()).toJSON() as unknown as TDocument
+
+          } catch (error) {
+
+            if (error.code === 11000) {
+                this.logger.warn('Email already exists: %o', document)
+                throw new ConflictException('Email already exists');
+            }
+            
+            throw error;
+          }
     }
 
     async findOneAndUpdate (filterQuery: FilterQuery<TDocument>, document: Partial<TDocument>) : Promise<TDocument> {
-        const updatedDocument = await this.model.findOneAndUpdate(filterQuery, document, { lean: true, new: true })
+        try {
+            const updatedDocument = await this.model.findOneAndUpdate(filterQuery, document, { lean: true, new: true })
 
-        if(!updatedDocument) {
-            this.logger.warn('Document not found with filterQuery: %o', filterQuery)
-            throw new NotFoundException('Document not found.')
-        }
+            if(!updatedDocument) {
+                this.logger.warn('Document not found with filterQuery: %o', filterQuery)
+                throw new NotFoundException('Document not found.')
+            }
 
-        return updatedDocument as unknown as TDocument
+            return updatedDocument as unknown as TDocument
+          } catch (error) { 
+            throw error;
+          }
     }
 
-    async findOneAndDelete (filterQuery: FilterQuery<TDocument> ) : Promise<TDocument> {        
-        const deletedDocument = await this.model.findOneAndDelete(filterQuery, { lean: true })
+    async findOneAndDelete (filterQuery: FilterQuery<TDocument> ) : Promise<TDocument> {    
+        try {
+            const deletedDocument = await this.model.findOneAndDelete(filterQuery, { lean: true })
 
-        if(!deletedDocument) {
-            this.logger.warn('Document not found with filterQuery: %o', filterQuery)
-            throw new NotFoundException('Document not found.')
+            if(!deletedDocument) {
+                this.logger.warn('Document not found with filterQuery: %o', filterQuery)
+                throw new NotFoundException('Document not found.')
+            }
+
+            return deletedDocument as unknown as TDocument
+        } catch (error) { 
+            throw error;
         }
-
-        return deletedDocument as unknown as TDocument
     }
 }

@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { InputType, Field, ID } from '@nestjs/graphql';
 
 @InputType()
-export class UpdateUserInput {
+export class LoginInput {
     @Field(() => ID, { nullable: true })
     _id: Types.ObjectId;
 
@@ -11,10 +11,10 @@ export class UpdateUserInput {
   
     @Field({ description: 'user last name', nullable: true })
     lastname: string
-  
-    @Field({ description: 'unique identification for authentication', nullable: true })
+    
+    @Field({ description: 'unique identification for authentication'})
     email: string
   
-    @Field({ description: 'password for validating user', nullable: true })
+    @Field({ description: 'password for validating user'})
     password: string
 }
