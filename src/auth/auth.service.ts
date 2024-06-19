@@ -1,7 +1,8 @@
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserInput } from 'src/user/dto/create-user.input';
-import { LoginInput } from 'src/user/dto/login.input';
+import { SignupUserInput } from 'src/user/dto/signupUser.inupt';
+import { LoginUserInput } from 'src/user/dto/loginUser.input';
 import { AuthRepository } from './auth.repository';
 
 @Injectable()
@@ -19,15 +20,19 @@ export class AuthService {
     return decryptedPassword
   }
 
-  async signup(createUserInput: CreateUserInput) {
+  async signup(createUserInput: SignupUserInput) {
     const password = await this.hashPassword(createUserInput.password)
-    return await this.authRepository.create({
+    const user = await this.authRepository.create({
         ...createUserInput,
         password,
     })
+
+    const token = await jwt.sign({ user: user._id }, process.env.JWT_TOKEN, { expiresIn: '24h' })
+
+    return { ...user, token }
   }
   
-  async login(loginInput: LoginInput) {
+  async login(loginInput: LoginUserInput) {
     const user = await this.authRepository.findOne({email: loginInput.email})
 
     if(!user) {
@@ -38,6 +43,12 @@ export class AuthService {
       throw new NotFoundException('Email Or Password Is Inorrect.')
     }
 
-    return user
+    const token = await jwt.sign({ user: user._id }, process.env.JWT_TOKEN, { expiresIn: '24h' })
+
+    return { ...user, token }
+  }
+
+  async logout() {
+    return "logout successfully"
   }
 }

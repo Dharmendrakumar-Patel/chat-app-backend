@@ -1,8 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
-import { UpdateUserInput } from './dto/update-user.input';
-import { Response } from 'express';
+import { UpdateUserInput } from './dto/updateUser.input';
 
 @Injectable()
 export class UserService {
@@ -33,6 +32,7 @@ export class UserService {
   }
 
   async remove(_id: string) {
-    return await this.userRepository.findOneAndDelete({_id})
+    const user = await this.userRepository.findOneAndDelete({_id})
+    return `User removed successfully: ${user._id}`
   }
 }

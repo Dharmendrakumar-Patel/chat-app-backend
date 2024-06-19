@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { InputType, Field, ID } from '@nestjs/graphql';
 
 @InputType()
-export class LoginInput {
+export class LoginUserInput {
     @Field(() => ID, { nullable: true })
     _id: Types.ObjectId;
 
