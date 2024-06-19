@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+const cookieParser = require('cookie-parser');
 // import session from 'express-session';
 // import MongoStore from 'connect-mongo'
 
@@ -22,6 +23,7 @@ async function bootstrap() {
   //   }),
   // );
 
+  app.use(cookieParser());
   app.enableCors();
 
   await app.listen(3000);

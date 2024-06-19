@@ -1,0 +1,94 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserOutPut {
+  """user id genrated from server"""
+  _id: ID
+
+  """user first name"""
+  firstname: String!
+
+  """user last name"""
+  lastname: String!
+
+  """unique identification for authentication"""
+  email: String!
+
+  """password for validating user"""
+  password: String!
+
+  """JWT token"""
+  token: String
+}
+
+type Query {
+  """returs all users data"""
+  users: [UserOutPut!]!
+
+  """return single user data"""
+  user(_id: String!): UserOutPut!
+}
+
+type Mutation {
+  """updates exiting user"""
+  updateUser(_id: String!, updateUserInput: UpdateUserInput!): UserOutPut!
+
+  """deletes exiting user"""
+  deleteUser(_id: String!): String!
+
+  """add new user into database"""
+  signUp(createUserInput: SignupUserInput!): UserOutPut!
+
+  """login existing user"""
+  login(login: LoginUserInput!): UserOutPut!
+
+  """logout from portal"""
+  logout: String!
+}
+
+input UpdateUserInput {
+  _id: ID
+
+  """user first name"""
+  firstname: String
+
+  """user last name"""
+  lastname: String
+
+  """unique identification for authentication"""
+  email: String
+
+  """password for validating user"""
+  password: String
+}
+
+input SignupUserInput {
+  """user first name"""
+  firstname: String!
+
+  """user last name"""
+  lastname: String!
+
+  """unique identification for authentication"""
+  email: String!
+
+  """password for validating user"""
+  password: String!
+}
+
+input LoginUserInput {
+  _id: ID
+
+  """user first name"""
+  firstname: String
+
+  """user last name"""
+  lastname: String
+
+  """unique identification for authentication"""
+  email: String!
+
+  """password for validating user"""
+  password: String!
+}
