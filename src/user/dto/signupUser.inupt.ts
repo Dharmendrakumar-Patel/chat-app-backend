@@ -1,7 +1,11 @@
-import { InputType, Field } from '@nestjs/graphql';
+import { InputType, Field, ID } from '@nestjs/graphql';
+import { Types } from 'mongoose';
 
 @InputType()
-export class SignupUserInput {
+export class SignupUserInput  {
+  @Field(() => ID, { nullable: true })
+  _id: Types.ObjectId;
+
   @Field({ description: 'user first name' })
   firstname: string
 

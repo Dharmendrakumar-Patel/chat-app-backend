@@ -27,10 +27,13 @@ type Query {
   users: [UserOutPut!]!
 
   """return single user data"""
-  user(_id: String!): UserOutPut!
+  user: UserOutPut!
 }
 
 type Mutation {
+  """add new user into database"""
+  createUser(createUserInput: SignupUserInput!): UserOutPut!
+
   """updates exiting user"""
   updateUser(_id: String!, updateUserInput: UpdateUserInput!): UserOutPut!
 
@@ -47,6 +50,22 @@ type Mutation {
   logout: String!
 }
 
+input SignupUserInput {
+  _id: ID
+
+  """user first name"""
+  firstname: String!
+
+  """user last name"""
+  lastname: String!
+
+  """unique identification for authentication"""
+  email: String!
+
+  """password for validating user"""
+  password: String!
+}
+
 input UpdateUserInput {
   _id: ID
 
@@ -61,20 +80,6 @@ input UpdateUserInput {
 
   """password for validating user"""
   password: String
-}
-
-input SignupUserInput {
-  """user first name"""
-  firstname: String!
-
-  """user last name"""
-  lastname: String!
-
-  """unique identification for authentication"""
-  email: String!
-
-  """password for validating user"""
-  password: String!
 }
 
 input LoginUserInput {

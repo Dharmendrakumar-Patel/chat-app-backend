@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { UpdateUserInput } from './dto/updateUser.input';
+import { SignupUserInput } from './dto/signupUser.inupt';
 
 @Injectable()
 export class UserService {
@@ -19,6 +20,16 @@ export class UserService {
 
   async find(_id: string){
     return await this.userRepository.findOne({_id})
+  }
+
+  async create(createUserInput: SignupUserInput) {
+    const password = await this.hashPassword(createUserInput.password)
+    const user = await this.userRepository.create({
+        ...createUserInput,
+        password,
+    })
+
+    return user
   }
 
   async update(_id: string, updateUserInput: Partial<UpdateUserInput>) {
